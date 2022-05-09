@@ -79,7 +79,7 @@ func (h *ReceiveHandler) Handle(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	aelog.Infof(ctx, "__RECEIVE_MESSAGE__:{Subscription:%s,ReceiveMessageID:%s,PublishTime:%s}\n",
-		pubSubBody.Subscription, pubSubBody.Message.MessageID, pubSubBody.Message.PublishTime)
+		pubSubBody.Subscription, pubSubBody.Message.MessageID, pubSubBody.Message.PublishTime.UnixMicro())
 
 	j, err := json.Marshal(pubSubBody)
 	if err != nil {
