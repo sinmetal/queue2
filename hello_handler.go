@@ -24,7 +24,7 @@ func (h *HelloHandler) Handle(w http.ResponseWriter, r *http.Request) {
 
 	serverID, err := h.PubSubService.Publish(ctx, ProjectID(), "hello", &pubsub.Message{
 		Data:       []byte(time.Now().String()),
-		Attributes: nil,
+		Attributes: map[string]string{"hello": "world"},
 	})
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)

@@ -67,7 +67,7 @@ func (h *ReceiveHandler) Handle(w http.ResponseWriter, r *http.Request) {
 		}
 		return
 	}
-	aelog.Infof(ctx, "%s\n", string(body))
+	aelog.Infof(ctx, "rawBody:%s\n", string(body))
 
 	pubSubBody := &Body{}
 	if err := json.Unmarshal(body, pubSubBody); err != nil {
@@ -78,7 +78,7 @@ func (h *ReceiveHandler) Handle(w http.ResponseWriter, r *http.Request) {
 		}
 		return
 	}
-	aelog.Infof(ctx, "Receive_MessageID:%s\n", pubSubBody.Message.MessageID)
+	aelog.Infof(ctx, "{Subscription:%s,ReceiveMessageID:%s}\n", pubSubBody.Subscription, pubSubBody.Message.MessageID)
 
 	j, err := json.Marshal(pubSubBody)
 	if err != nil {
@@ -89,5 +89,5 @@ func (h *ReceiveHandler) Handle(w http.ResponseWriter, r *http.Request) {
 		}
 		return
 	}
-	aelog.Infof(ctx, "%s\n", string(j))
+	aelog.Infof(ctx, "pubSubBody:%s\n", string(j))
 }
