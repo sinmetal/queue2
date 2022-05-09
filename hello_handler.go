@@ -3,6 +3,7 @@ package queue2
 import (
 	"context"
 	"net/http"
+	"time"
 
 	"cloud.google.com/go/pubsub"
 	"github.com/vvakame/sdlog/aelog"
@@ -22,7 +23,7 @@ func (h *HelloHandler) Handle(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
 	serverID, err := h.PubSubService.Publish(ctx, ProjectID(), "hello", &pubsub.Message{
-		Data:       nil,
+		Data:       []byte(time.Now().String()),
 		Attributes: nil,
 	})
 	if err != nil {
