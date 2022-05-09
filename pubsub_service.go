@@ -11,6 +11,12 @@ type PubSubService struct {
 	ps *pubsub.Client
 }
 
+func NewPubSubService(ctx context.Context, ps *pubsub.Client) (*PubSubService, error) {
+	return &PubSubService{
+		ps: ps,
+	}, nil
+}
+
 func (s *PubSubService) Publish(ctx context.Context, projectID string, topicID string, msg *pubsub.Message) (serverID string, err error) {
 	ctx = trace.StartSpan(ctx, "PubSubService/Publish")
 	defer trace.EndSpan(ctx, err)
