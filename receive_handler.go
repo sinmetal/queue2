@@ -78,5 +78,16 @@ func (h *ReceiveHandler) Handle(w http.ResponseWriter, r *http.Request) {
 		}
 		return
 	}
-	aelog.Infof(ctx, "%#v\n", pubSubBody)
+	aelog.Infof(ctx, "Receive_MessageID:%s\n", pubSubBody.Message.MessageID)
+
+	j, err := json.Marshal(pubSubBody)
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		_, err := w.Write([]byte(err.Error()))
+		if err != nil {
+			aelog.Errorf(ctx, "failed json.Marshal %s", err)
+		}
+		return
+	}
+	aelog.Infof(ctx, "%s\n", string(j))
 }
