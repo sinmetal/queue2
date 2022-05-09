@@ -17,8 +17,9 @@ import (
 )
 
 type Handlers struct {
-	PubSubService *queue2.PubSubService
-	HelloHandler  *queue2.HelloHandler
+	PubSubService  *queue2.PubSubService
+	HelloHandler   *queue2.HelloHandler
+	ReceiveHandler *queue2.ReceiveHandler
 }
 
 func handler(w http.ResponseWriter, r *http.Request) {
@@ -53,6 +54,7 @@ func main() {
 
 	mux := http.NewServeMux()
 	mux.HandleFunc("/hello", handlers.HelloHandler.Handle)
+	mux.HandleFunc("/receive", handlers.ReceiveHandler.Handle)
 	mux.HandleFunc("/", handler)
 
 	const addr = ":8080"
@@ -79,7 +81,12 @@ func createHandlers(ctx context.Context, projectID string) (*Handlers, error) {
 	if err != nil {
 		return nil, err
 	}
+	receiveHandler, err := queue2.NewReceiveHandler(ctx)
+	if err != nil {
+		return nil, err
+	}
 	return &Handlers{
-		HelloHandler: helloHandler,
+		HelloHandler:   helloHandler,
+		ReceiveHandler: receiveHandler,
 	}, nil
 }
