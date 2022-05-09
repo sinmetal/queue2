@@ -65,16 +65,18 @@ func (h *ReceiveHandler) Handle(w http.ResponseWriter, r *http.Request) {
 		if err != nil {
 			aelog.Errorf(ctx, "failed read body %s", err)
 		}
+		return
 	}
 	aelog.Infof(ctx, "%s\n", string(body))
 
-	var pubSubBody *Body
+	pubSubBody := &Body{}
 	if err := json.Unmarshal(body, pubSubBody); err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		_, err := w.Write([]byte(err.Error()))
 		if err != nil {
-			aelog.Errorf(ctx, "failed read body %s", err)
+			aelog.Errorf(ctx, "failed json.Unmarshal %s", err)
 		}
+		return
 	}
 	aelog.Infof(ctx, "%#v\n", pubSubBody)
 }

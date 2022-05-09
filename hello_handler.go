@@ -32,6 +32,7 @@ func (h *HelloHandler) Handle(w http.ResponseWriter, r *http.Request) {
 		if err != nil {
 			aelog.Errorf(ctx, "%s", err)
 		}
+		return
 	}
 	aelog.Infof(ctx, "Publish_ServerID:%s\n", serverID)
 	_, err = w.Write([]byte(serverID))
