@@ -18,6 +18,7 @@ steps:
       - --region=asia-northeast1
       - --platform=managed
       - --service-account=queue2@$PROJECT_ID.iam.gserviceaccount.com
+      - --no-allow-unauthenticated
       - --max-instances=1
       - --cpu=1
       - --memory=512Mi
