@@ -4,7 +4,6 @@ import (
 	"context"
 	"encoding/json"
 	"io"
-	"math/rand"
 	"net/http"
 	"time"
 
@@ -92,5 +91,6 @@ func (h *ReceiveHandler) Handle(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	aelog.Infof(ctx, "pubSubBody:%s\n", string(j))
-	time.Sleep(time.Duration(rand.Int63n(60*30)) * time.Second) // 適当に時間をかけたりしてみる
+	//time.Sleep(time.Duration(rand.Int63n(60*11)) * time.Second) // pubsub deadlineが10minなので、それよりちょいかけてみる
+	time.Sleep(11 * time.Minute) // pubsub deadlineが10minなので、必ず超過するようにしてみる
 }
