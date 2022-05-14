@@ -92,5 +92,5 @@ func (h *ReceiveHandler) Handle(w http.ResponseWriter, r *http.Request) {
 	}
 	aelog.Infof(ctx, "pubSubBody:%s\n", string(j))
 	//time.Sleep(time.Duration(rand.Int63n(60*11)) * time.Second) // pubsub deadlineが10minなので、それよりちょいかけてみる
-	time.Sleep(11 * time.Minute) // pubsub deadlineが10minなので、必ず超過するようにしてみる
+	time.Sleep(20 * time.Minute) // pubsub deadlineが10minなので、必ず超過するようにしてみる
 }
