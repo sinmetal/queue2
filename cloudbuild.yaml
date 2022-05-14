@@ -1,8 +1,8 @@
 steps:
   - name: 'golang:1.18'
     entrypoint: 'go'
-    args: ['build', '-o', 'app', 'github.com/sinmetal/queue2/cmd']
-    env: ['GO111MODULE=on']
+    args: ['build', '-o', 'app', 'github.com/sinmetal/queue2/cmd/server']
+    env: ['CGO_ENABLED=0']
   - name: 'gcr.io/kaniko-project/executor:v1.3.0'
     args:
       - --destination=asia-northeast1-docker.pkg.dev/$PROJECT_ID/queue2/$BRANCH_NAME:$COMMIT_SHA
