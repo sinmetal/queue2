@@ -19,10 +19,10 @@ steps:
       - --platform=managed
       - --service-account=queue2@$PROJECT_ID.iam.gserviceaccount.com
       - --allow-unauthenticated
-      - --max-instances=1
+      - --max-instances=3
       - --cpu=1
       - --memory=512Mi
-      - --concurrency=8
+      - --concurrency=80
       - --execution-environment=gen2
       - --tag=$BRANCH_NAME
       - --image=asia-northeast1-docker.pkg.dev/$PROJECT_ID/queue2/$BRANCH_NAME:$COMMIT_SHA
