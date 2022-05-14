@@ -1,0 +1,28 @@
+steps:
+  - name: 'golang:1.18'
+    entrypoint: 'go'
+    args: ['build', '-o', 'app', 'github.com/sinmetal/queue2/cmd/server']
+    env: ['CGO_ENABLED=0']
+  - name: 'gcr.io/kaniko-project/executor:v1.3.0'
+    args:
+      - --destination=asia-northeast1-docker.pkg.dev/$PROJECT_ID/queue2/$BRANCH_NAME:$COMMIT_SHA
+      - --cache=true
+      - --cache-ttl=6h
+  - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk:slim'
+    entrypoint: 'gcloud'
+    args:
+      - beta
+      - run
+      - deploy
+      - queue2
+      - --region=asia-northeast1
+      - --platform=managed
+      - --service-account=queue2@$PROJECT_ID.iam.gserviceaccount.com
+      - --allow-unauthenticated
+      - --max-instances=1
+      - --cpu=1
+      - --memory=512Mi
+      - --concurrency=8
+      - --execution-environment=gen2
+      - --tag=$BRANCH_NAME
+      - --image=asia-northeast1-docker.pkg.dev/$PROJECT_ID/queue2/$BRANCH_NAME:$COMMIT_SHA
