@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"io"
 	"net/http"
+	"strings"
 	"time"
 
 	"github.com/vvakame/sdlog/aelog"
@@ -91,6 +92,11 @@ func (h *ReceiveHandler) Handle(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	aelog.Infof(ctx, "pubSubBody:%s\n", string(j))
+
+	if strings.HasSuffix(pubSubBody.Subscription, "dead-letter") {
+		return
+	}
+
 	//time.Sleep(time.Duration(rand.Int63n(60*11)) * time.Second) // pubsub deadlineが10minなので、それよりちょいかけてみる
 	time.Sleep(20 * time.Minute) // pubsub deadlineが10minなので、必ず超過するようにしてみる
 }
