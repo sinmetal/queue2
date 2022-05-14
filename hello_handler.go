@@ -22,21 +22,45 @@ func NewHelloHandler(ctx context.Context, pubSubService *PubSubService) (*HelloH
 func (h *HelloHandler) Handle(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
-	serverID, err := h.PubSubService.Publish(ctx, ProjectID(), "hello", &pubsub.Message{
-		Data:       []byte(time.Now().String()),
-		Attributes: map[string]string{"hello": "world"},
-	})
-	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-		_, err := w.Write([]byte(err.Error()))
+	orderID := r.FormValue("order")
+	{
+		serverID, err := h.PubSubService.Publish(ctx, ProjectID(), "hello", &pubsub.Message{
+			Data:       []byte(time.Now().String()),
+			Attributes: map[string]string{"hello": "world"},
+		})
+		if err != nil {
+			w.WriteHeader(http.StatusInternalServerError)
+			_, err := w.Write([]byte(err.Error()))
+			if err != nil {
+				aelog.Errorf(ctx, "%s", err)
+			}
+			return
+		}
+		aelog.Infof(ctx, "Publish_ServerID:%s\n", serverID)
+		_, err = w.Write([]byte(serverID))
 		if err != nil {
 			aelog.Errorf(ctx, "%s", err)
 		}
-		return
 	}
-	aelog.Infof(ctx, "Publish_ServerID:%s\n", serverID)
-	_, err = w.Write([]byte(serverID))
-	if err != nil {
-		aelog.Errorf(ctx, "%s", err)
+	{
+		serverID, err := h.PubSubService.Publish(ctx, ProjectID(), "hello-order", &pubsub.Message{
+			Data:        []byte(time.Now().String()),
+			Attributes:  map[string]string{"hello": "world"},
+			OrderingKey: orderID,
+		})
+		if err != nil {
+			w.WriteHeader(http.StatusInternalServerError)
+			_, err := w.Write([]byte(err.Error()))
+			if err != nil {
+				aelog.Errorf(ctx, "%s", err)
+			}
+			return
+		}
+		aelog.Infof(ctx, "Publish_ServerID:%s\n", serverID)
+		_, err = w.Write([]byte(serverID))
+		if err != nil {
+			aelog.Errorf(ctx, "%s", err)
+		}
 	}
+
 }
