@@ -14,6 +14,7 @@ import (
 	"github.com/vvakame/sdlog/aelog"
 	"go.opencensus.io/plugin/ochttp"
 	"go.opencensus.io/trace"
+	"google.golang.org/api/option"
 )
 
 type Handlers struct {
@@ -69,7 +70,7 @@ func main() {
 }
 
 func createHandlers(ctx context.Context, projectID string) (*Handlers, error) {
-	pubSubClient, err := pubsub.NewClient(ctx, projectID)
+	pubSubClient, err := pubsub.NewClient(ctx, projectID, option.WithEndpoint("https://asia-northeast1-pubsub.googleapis.com"))
 	if err != nil {
 		return nil, err
 	}
