@@ -26,10 +26,12 @@ func (h *HelloHandler) Handle(w http.ResponseWriter, r *http.Request) {
 
 	fail := makeItFail()
 	orderID := r.FormValue("order")
+	workTimeSec := r.FormValue("workTimeSec")
+	attributes := map[string]string{"hello": "world"}
+	attributes["fail"] = fail
+	attributes["workTimeSec"] = workTimeSec
 	{
 		const topicID = "hello"
-		attributes := map[string]string{"hello": "world"}
-		attributes["fail"] = fail
 		serverID, err := h.PubSubService.Publish(ctx, ProjectID(), topicID, &pubsub.Message{
 			Data:       []byte(time.Now().String()),
 			Attributes: attributes,
@@ -50,8 +52,6 @@ func (h *HelloHandler) Handle(w http.ResponseWriter, r *http.Request) {
 	}
 	{
 		const topicID = "hello-order"
-		attributes := map[string]string{"hello": "world"}
-		attributes["fail"] = fail
 		serverID, err := h.PubSubService.Publish(ctx, ProjectID(), topicID, &pubsub.Message{
 			Data:        []byte(time.Now().String()),
 			Attributes:  attributes,

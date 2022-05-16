@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"io"
 	"net/http"
+	"strconv"
 	"strings"
 	"time"
 
@@ -98,6 +99,14 @@ func (h *ReceiveHandler) Handle(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	//time.Sleep(time.Duration(rand.Int63n(60*11)) * time.Second) // pubsub deadlineが10minなので、それよりちょいかけてみる
-	//time.Sleep(20 * time.Minute) // pubsub deadlineが10minなので、必ず超過するようにしてみる
+	v, ok := pubSubBody.Message.Attributes["workTimeSec"]
+	if ok && v != "" {
+		workTimeSec, err := strconv.ParseInt(v, 10, 64)
+		if err != nil {
+			aelog.Errorf(ctx, "invalid workTimeSec format.value=%s", v)
+			return
+		}
+		aelog.Infof(ctx, "sleep:%d sec", workTimeSec)
+		time.Sleep(time.Duration(workTimeSec) * time.Second)
+	}
 }
