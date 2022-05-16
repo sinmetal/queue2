@@ -2,6 +2,8 @@ package queue2
 
 import (
 	"context"
+	"fmt"
+	"math/rand"
 	"net/http"
 	"time"
 
@@ -22,45 +24,59 @@ func NewHelloHandler(ctx context.Context, pubSubService *PubSubService) (*HelloH
 func (h *HelloHandler) Handle(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
+	fail := makeItFail()
 	orderID := r.FormValue("order")
 	{
-		serverID, err := h.PubSubService.Publish(ctx, ProjectID(), "hello", &pubsub.Message{
+		const topicID = "hello"
+		attributes := map[string]string{"hello": "world"}
+		attributes["fail"] = fail
+		serverID, err := h.PubSubService.Publish(ctx, ProjectID(), topicID, &pubsub.Message{
 			Data:       []byte(time.Now().String()),
-			Attributes: map[string]string{"hello": "world"},
+			Attributes: attributes,
 		})
 		if err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
-			_, err := w.Write([]byte(err.Error()))
+			_, err := w.Write([]byte(fmt.Sprintf("%s:%s\n", topicID, err.Error())))
 			if err != nil {
 				aelog.Errorf(ctx, "%s", err)
 			}
 			return
 		}
 		aelog.Infof(ctx, "Publish_ServerID:%s\n", serverID)
-		_, err = w.Write([]byte(serverID))
+		_, err = w.Write([]byte(fmt.Sprintf("%s:%s\n", topicID, serverID)))
 		if err != nil {
 			aelog.Errorf(ctx, "%s", err)
 		}
 	}
 	{
-		serverID, err := h.PubSubService.Publish(ctx, ProjectID(), "hello-order", &pubsub.Message{
+		const topicID = "hello-order"
+		attributes := map[string]string{"hello": "world"}
+		attributes["fail"] = fail
+		serverID, err := h.PubSubService.Publish(ctx, ProjectID(), topicID, &pubsub.Message{
 			Data:        []byte(time.Now().String()),
-			Attributes:  map[string]string{"hello": "world"},
+			Attributes:  attributes,
 			OrderingKey: orderID,
 		})
 		if err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
-			_, err := w.Write([]byte(err.Error()))
+			_, err := w.Write([]byte(fmt.Sprintf("%s:%s\n", topicID, err.Error())))
 			if err != nil {
 				aelog.Errorf(ctx, "%s", err)
 			}
 			return
 		}
 		aelog.Infof(ctx, "Publish_ServerID:%s\n", serverID)
-		_, err = w.Write([]byte(serverID))
+		_, err = w.Write([]byte(fmt.Sprintf("%s:%s\n", topicID, serverID)))
 		if err != nil {
 			aelog.Errorf(ctx, "%s", err)
 		}
 	}
 
+}
+
+func makeItFail() string {
+	if rand.Int() < 1000 {
+		return "true"
+	}
+	return "false"
 }
