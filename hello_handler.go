@@ -32,6 +32,8 @@ func (h *HelloHandler) Handle(w http.ResponseWriter, r *http.Request) {
 	attributes["workTimeSec"] = workTimeSec
 	{
 		const topicID = "hello"
+		ctx, cancel := context.WithTimeout(ctx, 20*time.Second)
+		defer cancel()
 		serverID, err := h.PubSubService.Publish(ctx, ProjectID(), topicID, &pubsub.Message{
 			Data:       []byte(time.Now().String()),
 			Attributes: attributes,
@@ -52,6 +54,8 @@ func (h *HelloHandler) Handle(w http.ResponseWriter, r *http.Request) {
 	}
 	{
 		const topicID = "hello-order"
+		ctx, cancel := context.WithTimeout(ctx, 20*time.Second)
+		defer cancel()
 		serverID, err := h.PubSubService.Publish(ctx, ProjectID(), topicID, &pubsub.Message{
 			Data:        []byte(time.Now().String()),
 			Attributes:  attributes,
