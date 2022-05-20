@@ -99,6 +99,14 @@ func (h *ReceiveHandler) Handle(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	fail := false
+	failValue, ok := pubSubBody.Message.Attributes["fail"]
+	if ok {
+		if strings.ToLower(failValue) == "true" {
+			fail = true
+		}
+	}
+
 	v, ok := pubSubBody.Message.Attributes["workTimeSec"]
 	if ok && v != "" {
 		workTimeSec, err := strconv.ParseInt(v, 10, 64)
@@ -109,4 +117,9 @@ func (h *ReceiveHandler) Handle(w http.ResponseWriter, r *http.Request) {
 		aelog.Infof(ctx, "sleep:%d sec", workTimeSec)
 		time.Sleep(time.Duration(workTimeSec) * time.Second)
 	}
+	if fail {
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+	w.WriteHeader(http.StatusOK)
 }
