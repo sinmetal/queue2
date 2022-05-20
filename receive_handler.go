@@ -80,8 +80,10 @@ func (h *ReceiveHandler) Handle(w http.ResponseWriter, r *http.Request) {
 		}
 		return
 	}
-	aelog.Infof(ctx, `__RECEIVE_MESSAGE__:{"Subscription":"%s","ReceiveMessageID":"%s","OrderingKey":"%s","PublishTime":%d}`,
-		pubSubBody.Subscription, pubSubBody.Message.MessageID, pubSubBody.Message.OrderingKey, pubSubBody.Message.PublishTime.UnixMicro())
+
+	publishNumber := pubSubBody.Message.Attributes["PublishNumber"]
+	aelog.Infof(ctx, `__RECEIVE_MESSAGE__:{"Subscription":"%s","ReceiveMessageID":"%s","OrderingKey":"%s","PublishNumber":"%s",PublishTime":%d}`,
+		pubSubBody.Subscription, pubSubBody.Message.MessageID, pubSubBody.Message.OrderingKey, publishNumber, pubSubBody.Message.PublishTime.UnixMicro())
 
 	j, err := json.Marshal(pubSubBody)
 	if err != nil {
