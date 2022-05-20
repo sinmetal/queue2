@@ -63,12 +63,12 @@ func (h *HelloHandler) Handle(w http.ResponseWriter, r *http.Request) {
 		ctx, cancel := context.WithTimeout(ctx, 20*time.Second)
 		defer cancel()
 
-		attr := map[string]string{}
-		for k, v := range baseAttr {
-			attr[k] = v
-		}
 		failPublishNumber := []string{}
 		for i := 0; i < 10; i++ {
+			attr := map[string]string{}
+			for k, v := range baseAttr {
+				attr[k] = v
+			}
 			fail := makeItFail()
 			attr["fail"] = fail
 			pn := fmt.Sprintf("%03d", i)
