@@ -82,8 +82,25 @@ func (h *ReceiveHandler) Handle(w http.ResponseWriter, r *http.Request) {
 	}
 
 	publishNumber := pubSubBody.Message.Attributes["PublishNumber"]
-	aelog.Infof(ctx, `__RECEIVE_MESSAGE__:{"Subscription":"%s","ReceiveMessageID":"%s","OrderingKey":"%s","PublishNumber":"%s",PublishTime":%d}`,
-		pubSubBody.Subscription, pubSubBody.Message.MessageID, pubSubBody.Message.OrderingKey, publishNumber, pubSubBody.Message.PublishTime.UnixMicro())
+	line := struct {
+		Subscription     string
+		ReceiveMessageID string
+		OrderingKey      string
+		PublishNumber    string
+		PublishTime      int64
+	}{
+		pubSubBody.Subscription,
+		pubSubBody.Message.MessageID,
+		pubSubBody.Message.OrderingKey,
+		publishNumber,
+		pubSubBody.Message.PublishTime.UnixMicro(),
+	}
+	lineJ, err := json.Marshal(line)
+	if err != nil {
+		aelog.Errorf(ctx, "failed json.Unmarshal %s", err)
+		return
+	}
+	aelog.Infof(ctx, `__RECEIVE_MESSAGE__:%s`, lineJ)
 
 	j, err := json.Marshal(pubSubBody)
 	if err != nil {
