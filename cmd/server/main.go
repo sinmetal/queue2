@@ -77,7 +77,7 @@ func createHandlers(ctx context.Context, projectID string) (*Handlers, error) {
 	if err != nil {
 		return nil, err
 	}
-	helloOrderTopicPubSubService, err := queue2.NewPubSubService(ctx, pubSubClient, "hello-order", projectID, false)
+	helloOrderTopicPubSubService, err := queue2.NewPubSubService(ctx, pubSubClient, "hello-order", projectID, true)
 	if err != nil {
 		return nil, err
 	}
