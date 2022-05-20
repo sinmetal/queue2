@@ -8,24 +8,24 @@ import (
 )
 
 type PubSubService struct {
-	ps *pubsub.Client
+	ps    *pubsub.Client
+	topic *pubsub.Topic
 }
 
-func NewPubSubService(ctx context.Context, ps *pubsub.Client) (*PubSubService, error) {
+func NewPubSubService(ctx context.Context, ps *pubsub.Client, topicID string, projectID string, enableMessageOrdering bool) (*PubSubService, error) {
+	topic := ps.TopicInProject(topicID, projectID)
+	topic.EnableMessageOrdering = enableMessageOrdering
 	return &PubSubService{
-		ps: ps,
+		topic: topic,
+		ps:    ps,
 	}, nil
 }
 
-func (s *PubSubService) PublishWithGet(ctx context.Context, projectID string, topicID string, msg *pubsub.Message) (serverID string, err error) {
+func (s *PubSubService) PublishWithGet(ctx context.Context, msg *pubsub.Message) (serverID string, err error) {
 	ctx = trace.StartSpan(ctx, "PubSubService/Publish")
 	defer trace.EndSpan(ctx, err)
 
-	topic := s.ps.TopicInProject(topicID, projectID)
-	if msg.OrderingKey != "" {
-		topic.EnableMessageOrdering = true
-	}
-	ret := topic.Publish(ctx, msg)
+	ret := s.Publish(ctx, msg)
 	serverID, err = ret.Get(ctx)
 	if err != nil {
 		return "", err
@@ -33,21 +33,16 @@ func (s *PubSubService) PublishWithGet(ctx context.Context, projectID string, to
 	return serverID, nil
 }
 
-func (s *PubSubService) Publish(ctx context.Context, projectID string, topicID string, msg *pubsub.Message) (result *pubsub.PublishResult, err error) {
+func (s *PubSubService) Publish(ctx context.Context, msg *pubsub.Message) *pubsub.PublishResult {
 	ctx = trace.StartSpan(ctx, "PubSubService/Publish")
-	defer trace.EndSpan(ctx, err)
+	defer trace.EndSpan(ctx, nil)
 
-	topic := s.ps.TopicInProject(topicID, projectID)
-	if msg.OrderingKey != "" {
-		topic.EnableMessageOrdering = true
-	}
-	ret := topic.Publish(ctx, msg)
-	return ret, nil
+	return s.topic.Publish(ctx, msg)
 }
 
-func (s *PubSubService) Flush(ctx context.Context, projectID string, topicID string) {
+func (s *PubSubService) Flush(ctx context.Context) {
 	ctx = trace.StartSpan(ctx, "PubSubService/Flush")
 	defer trace.EndSpan(ctx, nil)
 
-	s.ps.TopicInProject(topicID, projectID).Flush()
+	s.topic.Flush()
 }

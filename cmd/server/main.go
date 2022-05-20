@@ -73,11 +73,15 @@ func createHandlers(ctx context.Context, projectID string) (*Handlers, error) {
 	if err != nil {
 		return nil, err
 	}
-	pubSubService, err := queue2.NewPubSubService(ctx, pubSubClient)
+	helloTopicPubSubService, err := queue2.NewPubSubService(ctx, pubSubClient, "hello", projectID, false)
 	if err != nil {
 		return nil, err
 	}
-	helloHandler, err := queue2.NewHelloHandler(ctx, pubSubService)
+	helloOrderTopicPubSubService, err := queue2.NewPubSubService(ctx, pubSubClient, "hello-order", projectID, false)
+	if err != nil {
+		return nil, err
+	}
+	helloHandler, err := queue2.NewHelloHandler(ctx, helloTopicPubSubService, helloOrderTopicPubSubService)
 	if err != nil {
 		return nil, err
 	}

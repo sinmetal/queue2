@@ -13,12 +13,14 @@ import (
 )
 
 type HelloHandler struct {
-	PubSubService *PubSubService
+	helloTopicPubSubService *PubSubService
+	helloOrderPubSubService *PubSubService
 }
 
-func NewHelloHandler(ctx context.Context, pubSubService *PubSubService) (*HelloHandler, error) {
+func NewHelloHandler(ctx context.Context, helloTopicPubSubService *PubSubService, helloOrderPubSubService *PubSubService) (*HelloHandler, error) {
 	return &HelloHandler{
-		PubSubService: pubSubService,
+		helloTopicPubSubService: helloTopicPubSubService,
+		helloOrderPubSubService: helloOrderPubSubService,
 	}, nil
 }
 
@@ -40,7 +42,7 @@ func (h *HelloHandler) Handle(w http.ResponseWriter, r *http.Request) {
 		const topicID = "hello"
 		ctx, cancel := context.WithTimeout(ctx, 20*time.Second)
 		defer cancel()
-		serverID, err := h.PubSubService.PublishWithGet(ctx, ProjectID(), topicID, &pubsub.Message{
+		serverID, err := h.helloTopicPubSubService.PublishWithGet(ctx, &pubsub.Message{
 			Data:       []byte(time.Now().String()),
 			Attributes: attr,
 		})
@@ -76,22 +78,14 @@ func (h *HelloHandler) Handle(w http.ResponseWriter, r *http.Request) {
 			if strings.ToLower(fail) == "true" {
 				failPublishNumber = append(failPublishNumber, pn)
 			}
-			_, err := h.PubSubService.Publish(ctx, ProjectID(), topicID, &pubsub.Message{
+			h.helloOrderPubSubService.Publish(ctx, &pubsub.Message{
 				Data:        []byte(time.Now().String()),
 				Attributes:  attr,
 				OrderingKey: orderID,
 			})
-			if err != nil {
-				w.WriteHeader(http.StatusInternalServerError)
-				_, err := w.Write([]byte(fmt.Sprintf("%s:%s\n", topicID, err.Error())))
-				if err != nil {
-					aelog.Errorf(ctx, "%s\n", err)
-				}
-				return
-			}
 		}
 
-		h.PubSubService.Flush(ctx, ProjectID(), topicID)
+		h.helloOrderPubSubService.Flush(ctx)
 		_, err := w.Write([]byte(fmt.Sprintf("Flush %s.FailPublishNumbers:%s\n", topicID, strings.Join(failPublishNumber, ","))))
 		if err != nil {
 			aelog.Errorf(ctx, "%s\n", err)
