@@ -42,14 +42,14 @@ func (h *HelloHandler) Handle(w http.ResponseWriter, r *http.Request) {
 			w.WriteHeader(http.StatusInternalServerError)
 			_, err := w.Write([]byte(fmt.Sprintf("%s:%s\n", topicID, err.Error())))
 			if err != nil {
-				aelog.Errorf(ctx, "%s", err)
+				aelog.Errorf(ctx, "%s\n", err)
 			}
 			return
 		}
 		aelog.Infof(ctx, "Publish_ServerID:%s\n", serverID)
 		_, err = w.Write([]byte(fmt.Sprintf("%s:%s\n", topicID, serverID)))
 		if err != nil {
-			aelog.Errorf(ctx, "%s", err)
+			aelog.Errorf(ctx, "%s\n", err)
 		}
 	}
 	{
@@ -65,14 +65,14 @@ func (h *HelloHandler) Handle(w http.ResponseWriter, r *http.Request) {
 			w.WriteHeader(http.StatusInternalServerError)
 			_, err := w.Write([]byte(fmt.Sprintf("%s:%s\n", topicID, err.Error())))
 			if err != nil {
-				aelog.Errorf(ctx, "%s", err)
+				aelog.Errorf(ctx, "%s\n", err)
 			}
 			return
 		}
 		aelog.Infof(ctx, "Publish_ServerID:%s\n", serverID)
 		_, err = w.Write([]byte(fmt.Sprintf("%s:%s\n", topicID, serverID)))
 		if err != nil {
-			aelog.Errorf(ctx, "%s", err)
+			aelog.Errorf(ctx, "%s\n", err)
 		}
 	}
 
