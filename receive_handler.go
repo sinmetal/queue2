@@ -88,12 +88,14 @@ func (h *ReceiveHandler) Handle(w http.ResponseWriter, r *http.Request) {
 		OrderingKey      string
 		PublishNumber    string
 		PublishTime      int64
+		ReceiveLocalTime int64
 	}{
 		pubSubBody.Subscription,
 		pubSubBody.Message.MessageID,
 		pubSubBody.Message.OrderingKey,
 		publishNumber,
 		pubSubBody.Message.PublishTime.UnixMicro(),
+		time.Now().UnixMicro(),
 	}
 	lineJ, err := json.Marshal(line)
 	if err != nil {
