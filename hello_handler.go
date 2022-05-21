@@ -72,7 +72,7 @@ func (h *HelloHandler) Handle(w http.ResponseWriter, r *http.Request) {
 			for k, v := range baseAttr {
 				attr[k] = v
 			}
-			fail := makeItFail(forceFail)
+			fail := makeItFailForOrder(i, forceFail)
 			attr["fail"] = fail
 			pn := fmt.Sprintf("%03d", i)
 			attr["PublishNumber"] = pn
@@ -100,6 +100,13 @@ func makeItFail(forceFail string) string {
 		return "true"
 	}
 	if rand.Int() < 1000 {
+		return "true"
+	}
+	return "false"
+}
+
+func makeItFailForOrder(i int, forceFail string) string {
+	if fmt.Sprintf("%d", i) == forceFail {
 		return "true"
 	}
 	return "false"
