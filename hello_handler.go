@@ -28,11 +28,11 @@ func NewHelloHandler(ctx context.Context, helloTopicPubSubService *PubSubService
 func (h *HelloHandler) Handle(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
+	baseAttr := map[string]string{"taskID": uuid.New().String()}
 	orderID := r.FormValue("order")
 	workTimeSec := r.FormValue("workTimeSec")
-	forceFail := r.FormValue("forceFail")
-	baseAttr := map[string]string{"taskID": uuid.New().String()}
 	baseAttr["workTimeSec"] = workTimeSec
+	forceFail := r.FormValue("forceFail")
 	{
 		attr := map[string]string{}
 		for k, v := range baseAttr {
