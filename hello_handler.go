@@ -29,6 +29,7 @@ func (h *HelloHandler) Handle(w http.ResponseWriter, r *http.Request) {
 
 	orderID := r.FormValue("order")
 	workTimeSec := r.FormValue("workTimeSec")
+	forceFail := r.FormValue("forceFail")
 	baseAttr := map[string]string{"hello": "world"}
 	baseAttr["workTimeSec"] = workTimeSec
 	{
@@ -37,7 +38,7 @@ func (h *HelloHandler) Handle(w http.ResponseWriter, r *http.Request) {
 			attr[k] = v
 		}
 
-		fail := makeItFail()
+		fail := makeItFail(forceFail)
 		attr["fail"] = fail
 		const topicID = "hello"
 		ctx, cancel := context.WithTimeout(ctx, 20*time.Second)
@@ -71,7 +72,7 @@ func (h *HelloHandler) Handle(w http.ResponseWriter, r *http.Request) {
 			for k, v := range baseAttr {
 				attr[k] = v
 			}
-			fail := makeItFail()
+			fail := makeItFail(forceFail)
 			attr["fail"] = fail
 			pn := fmt.Sprintf("%03d", i)
 			attr["PublishNumber"] = pn
@@ -94,7 +95,10 @@ func (h *HelloHandler) Handle(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func makeItFail() string {
+func makeItFail(forceFail string) string {
+	if len(forceFail) > 0 {
+		return "false"
+	}
 	if rand.Int() < 1000 {
 		return "true"
 	}
