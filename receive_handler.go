@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"io"
+	"math/rand"
 	"net/http"
 	"strconv"
 	"strings"
@@ -117,7 +118,7 @@ func (h *ReceiveHandler) Handle(w http.ResponseWriter, r *http.Request) {
 	}
 	aelog.Infof(ctx, "pubSubBody:%s\n", string(j))
 
-	if strings.HasSuffix(pubSubBody.Subscription, "dead-letter") {
+	if strings.HasSuffix(pubSubBody.Subscription, "dead-letter") && rand.Intn(100) < 10 {
 		w.WriteHeader(http.StatusOK)
 		return
 	}
