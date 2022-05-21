@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"cloud.google.com/go/pubsub"
+	"github.com/google/uuid"
 	"github.com/vvakame/sdlog/aelog"
 )
 
@@ -30,7 +31,7 @@ func (h *HelloHandler) Handle(w http.ResponseWriter, r *http.Request) {
 	orderID := r.FormValue("order")
 	workTimeSec := r.FormValue("workTimeSec")
 	forceFail := r.FormValue("forceFail")
-	baseAttr := map[string]string{"hello": "world"}
+	baseAttr := map[string]string{"taskID": uuid.New().String()}
 	baseAttr["workTimeSec"] = workTimeSec
 	{
 		attr := map[string]string{}
@@ -75,7 +76,7 @@ func (h *HelloHandler) Handle(w http.ResponseWriter, r *http.Request) {
 			fail := makeItFailForOrder(i, forceFail)
 			attr["fail"] = fail
 			pn := fmt.Sprintf("%03d", i)
-			attr["PublishNumber"] = pn
+			attr["publishNumber"] = pn
 			if strings.ToLower(fail) == "true" {
 				failPublishNumber = append(failPublishNumber, pn)
 			}

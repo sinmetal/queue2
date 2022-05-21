@@ -82,7 +82,8 @@ func (h *ReceiveHandler) Handle(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	publishNumber := pubSubBody.Message.Attributes["PublishNumber"]
+	taskID := pubSubBody.Message.Attributes["taskID"]
+	publishNumber := pubSubBody.Message.Attributes["publishNumber"]
 	line := struct {
 		Subscription     string
 		ReceiveMessageID string
@@ -91,6 +92,7 @@ func (h *ReceiveHandler) Handle(w http.ResponseWriter, r *http.Request) {
 		PublishTime      int64
 		ReceiveLocalTime int64
 		DeliveryAttempt  int
+		TaskID           string
 	}{
 		pubSubBody.Subscription,
 		pubSubBody.Message.MessageID,
@@ -99,6 +101,7 @@ func (h *ReceiveHandler) Handle(w http.ResponseWriter, r *http.Request) {
 		pubSubBody.Message.PublishTime.UnixMicro(),
 		time.Now().UnixMicro(),
 		pubSubBody.Message.DeliveryAttempt,
+		taskID,
 	}
 	lineJ, err := json.Marshal(line)
 	if err != nil {
