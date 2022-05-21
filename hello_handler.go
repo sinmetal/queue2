@@ -97,7 +97,7 @@ func (h *HelloHandler) Handle(w http.ResponseWriter, r *http.Request) {
 
 func makeItFail(forceFail string) string {
 	if len(forceFail) > 0 {
-		return "false"
+		return "true"
 	}
 	if rand.Int() < 1000 {
 		return "true"
