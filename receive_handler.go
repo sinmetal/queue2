@@ -89,6 +89,7 @@ func (h *ReceiveHandler) Handle(w http.ResponseWriter, r *http.Request) {
 		PublishNumber    string
 		PublishTime      int64
 		ReceiveLocalTime int64
+		DeliveryAttempt  int
 	}{
 		pubSubBody.Subscription,
 		pubSubBody.Message.MessageID,
@@ -96,6 +97,7 @@ func (h *ReceiveHandler) Handle(w http.ResponseWriter, r *http.Request) {
 		publishNumber,
 		pubSubBody.Message.PublishTime.UnixMicro(),
 		time.Now().UnixMicro(),
+		pubSubBody.Message.DeliveryAttempt,
 	}
 	lineJ, err := json.Marshal(line)
 	if err != nil {
