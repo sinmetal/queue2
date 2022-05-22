@@ -63,10 +63,11 @@ func (h *ReceiveHandler) Handle(w http.ResponseWriter, r *http.Request) {
 
 	body, err := io.ReadAll(r.Body)
 	if err != nil {
+		aelog.Errorf(ctx, "failed read body %s\n", err)
 		w.WriteHeader(http.StatusInternalServerError)
 		_, err := w.Write([]byte(err.Error()))
 		if err != nil {
-			aelog.Errorf(ctx, "failed read body %s", err)
+			aelog.Errorf(ctx, "failed write body %s\n", err)
 		}
 		return
 	}
@@ -74,10 +75,11 @@ func (h *ReceiveHandler) Handle(w http.ResponseWriter, r *http.Request) {
 
 	pubSubBody := &Body{}
 	if err := json.Unmarshal(body, pubSubBody); err != nil {
+		aelog.Errorf(ctx, "failed json.Unmarshal%s\n", err)
 		w.WriteHeader(http.StatusInternalServerError)
 		_, err := w.Write([]byte(err.Error()))
 		if err != nil {
-			aelog.Errorf(ctx, "failed json.Unmarshal %s", err)
+			aelog.Errorf(ctx, "failed write body %s\n", err)
 		}
 		return
 	}
@@ -105,7 +107,7 @@ func (h *ReceiveHandler) Handle(w http.ResponseWriter, r *http.Request) {
 	}
 	lineJ, err := json.Marshal(line)
 	if err != nil {
-		aelog.Errorf(ctx, "failed json.Unmarshal %s", err)
+		aelog.Errorf(ctx, "failed json.Marshal %s", err)
 		return
 	}
 	aelog.Infof(ctx, `__RECEIVE_MESSAGE__:%s`, lineJ)
@@ -115,7 +117,7 @@ func (h *ReceiveHandler) Handle(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusInternalServerError)
 		_, err := w.Write([]byte(err.Error()))
 		if err != nil {
-			aelog.Errorf(ctx, "failed json.Marshal %s", err)
+			aelog.Errorf(ctx, "failed write body %s", err)
 		}
 		return
 	}

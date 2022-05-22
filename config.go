@@ -9,3 +9,11 @@ func ProjectID() string {
 	}
 	return pID
 }
+
+func ServiceAccountEmail() string {
+	v, err := metadatabox.ServiceAccountEmail()
+	if err != nil {
+		panic(err)
+	}
+	return v
+}
