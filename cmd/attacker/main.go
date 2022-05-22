@@ -9,6 +9,7 @@ import (
 )
 
 var errCount int64 = 1
+var orderCount int64 = 0
 
 func main() {
 	client := http.DefaultClient
@@ -21,7 +22,7 @@ func main() {
 
 	for {
 		start := time.Now()
-		req, err := http.NewRequest(http.MethodGet, qau, nil)
+		req, err := http.NewRequest(http.MethodGet, fmt.Sprintf("%s?order=%d", qau, orderCount), nil)
 		if err != nil {
 			fmt.Printf("failed http.NewRequest url=%s,err=%s\n", qau, err)
 			time.Sleep(getErrSleepDuration(errCount))
@@ -36,6 +37,7 @@ func main() {
 		workTime := time.Now().Sub(start)
 		fmt.Printf("%s:%s:%s\n", time.Now(), res.Status, workTime)
 		time.Sleep(time.Duration(rand.Int63n(3000)) * time.Millisecond)
+		orderCount++
 	}
 }
 

@@ -22,7 +22,8 @@ steps:
       - --max-instances=1
       - --cpu=1
       - --memory=512Mi
-      - --concurrency=8
+      - --concurrency=80
+      - --timeout=60m
       - --execution-environment=gen2
       - --tag=$BRANCH_NAME
       - --image=asia-northeast1-docker.pkg.dev/$PROJECT_ID/queue2/$BRANCH_NAME:$COMMIT_SHA

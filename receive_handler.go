@@ -6,6 +6,8 @@ import (
 	"io"
 	"math/rand"
 	"net/http"
+	"strconv"
+	"strings"
 	"time"
 
 	"github.com/vvakame/sdlog/aelog"
@@ -17,6 +19,14 @@ type ReceiveHandler struct {
 type Body struct {
 	Message      *Message `json:"message"`
 	Subscription string   `json:"subscription"`
+
+	// DeliveryAttempt is the number of times a message has been delivered.
+	// This is part of the dead lettering feature that forwards messages that
+	// fail to be processed (from nack/ack deadline timeout) to a dead letter topic.
+	// If dead lettering is enabled, this will be set on all attempts, starting
+	// with value 1. Otherwise, the value will be nil.
+	// This field is read-only.
+	DeliveryAttempt int `json:"deliveryAttempt"`
 }
 
 type Message struct {
@@ -38,14 +48,6 @@ type Message struct {
 	//
 	// This field is read-only.
 	PublishTime time.Time `json:"publishTime"`
-
-	// DeliveryAttempt is the number of times a message has been delivered.
-	// This is part of the dead lettering feature that forwards messages that
-	// fail to be processed (from nack/ack deadline timeout) to a dead letter topic.
-	// If dead lettering is enabled, this will be set on all attempts, starting
-	// with value 1. Otherwise, the value will be nil.
-	// This field is read-only.
-	DeliveryAttempt int `json:"deliveryAttempt"`
 
 	// OrderingKey identifies related messages for which publish order should
 	// be respected. If empty string is used, message will be sent unordered.
@@ -79,8 +81,34 @@ func (h *ReceiveHandler) Handle(w http.ResponseWriter, r *http.Request) {
 		}
 		return
 	}
-	aelog.Infof(ctx, `__RECEIVE_MESSAGE__:{"Subscription":"%s","ReceiveMessageID":"%s","PublishTime":%d}`,
-		pubSubBody.Subscription, pubSubBody.Message.MessageID, pubSubBody.Message.PublishTime.UnixMicro())
+
+	taskID := pubSubBody.Message.Attributes["taskID"]
+	publishNumber := pubSubBody.Message.Attributes["publishNumber"]
+	line := struct {
+		Subscription     string
+		ReceiveMessageID string
+		OrderingKey      string
+		PublishNumber    string
+		PublishTime      int64
+		ReceiveLocalTime int64
+		DeliveryAttempt  int
+		TaskID           string
+	}{
+		pubSubBody.Subscription,
+		pubSubBody.Message.MessageID,
+		pubSubBody.Message.OrderingKey,
+		publishNumber,
+		pubSubBody.Message.PublishTime.UnixMicro(),
+		time.Now().UnixMicro(),
+		pubSubBody.DeliveryAttempt,
+		taskID,
+	}
+	lineJ, err := json.Marshal(line)
+	if err != nil {
+		aelog.Errorf(ctx, "failed json.Unmarshal %s", err)
+		return
+	}
+	aelog.Infof(ctx, `__RECEIVE_MESSAGE__:%s`, lineJ)
 
 	j, err := json.Marshal(pubSubBody)
 	if err != nil {
@@ -92,5 +120,33 @@ func (h *ReceiveHandler) Handle(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	aelog.Infof(ctx, "pubSubBody:%s\n", string(j))
-	time.Sleep(time.Duration(rand.Int63n(60*30)) * time.Second) // 適当に時間をかけたりしてみる
+
+	if strings.HasSuffix(pubSubBody.Subscription, "dead-letter") && rand.Intn(100) < 10 {
+		w.WriteHeader(http.StatusOK)
+		return
+	}
+
+	fail := false
+	failValue, ok := pubSubBody.Message.Attributes["fail"]
+	if ok {
+		if strings.ToLower(failValue) == "true" {
+			fail = true
+		}
+	}
+
+	v, ok := pubSubBody.Message.Attributes["workTimeSec"]
+	if ok && v != "" {
+		workTimeSec, err := strconv.ParseInt(v, 10, 64)
+		if err != nil {
+			aelog.Errorf(ctx, "invalid workTimeSec format.value=%s", v)
+			return
+		}
+		aelog.Infof(ctx, "sleep:%d sec", workTimeSec)
+		time.Sleep(time.Duration(workTimeSec) * time.Second)
+	}
+	if fail {
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+	w.WriteHeader(http.StatusOK)
 }
