@@ -31,6 +31,7 @@ func (h *ReceiveHandler) Handle(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	forceFail := r.FormValue("forceFail")
 	publishTime := r.FormValue("publishTime")
 	publishTimeMicroSec, err := strconv.ParseInt(publishTime, 10, 64)
 	if err != nil {
@@ -50,4 +51,9 @@ func (h *ReceiveHandler) Handle(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	aelog.Infof(ctx, `__RECEIVE_TASK__:%s`, lineJ)
+
+	if len(forceFail) > 0 {
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
 }
