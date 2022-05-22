@@ -1,4 +1,4 @@
-package pubsub
+package pubsub2
 
 import (
 	"context"
@@ -22,7 +22,7 @@ func NewPubSubService(ctx context.Context, ps *pubsub.Client, topicID string, pr
 }
 
 func (s *PubSubService) PublishWithGet(ctx context.Context, msg *pubsub.Message) (serverID string, err error) {
-	ctx = trace.StartSpan(ctx, "PubSubService/Publish")
+	ctx = trace.StartSpan(ctx, "PubSubService/PublishWithGet")
 	defer trace.EndSpan(ctx, err)
 
 	ret := s.Publish(ctx, msg)

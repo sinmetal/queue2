@@ -3,7 +3,6 @@ package main
 import (
 	"context"
 	"fmt"
-
 	"log"
 	"net/http"
 
@@ -11,7 +10,7 @@ import (
 	"contrib.go.opencensus.io/exporter/stackdriver"
 	"contrib.go.opencensus.io/exporter/stackdriver/propagation"
 	"github.com/sinmetal/queue2"
-	pubsub2 "github.com/sinmetal/queue2/pubsub"
+	pubsub2 "github.com/sinmetal/queue2/pubsub2"
 	metadatabox "github.com/sinmetalcraft/gcpbox/metadata"
 	"github.com/vvakame/sdlog/aelog"
 	"go.opencensus.io/plugin/ochttp"
@@ -26,7 +25,7 @@ type Handlers struct {
 
 func handler(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
-	_, err := fmt.Fprintf(w, "Hello, Ironlizard")
+	_, err := fmt.Fprintf(w, "Hello, Queue2")
 	if err != nil {
 		aelog.Errorf(ctx, "err=%+\nv", err)
 	}
