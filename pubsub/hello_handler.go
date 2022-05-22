@@ -1,4 +1,4 @@
-package queue2
+package pubsub
 
 import (
 	"context"

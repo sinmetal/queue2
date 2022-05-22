@@ -1,7 +1,8 @@
-package queue2_test
+package pubsub_test
 
 import (
 	"context"
+	pubsub2 "github.com/sinmetal/queue2/pubsub"
 	"testing"
 	"time"
 
@@ -18,7 +19,7 @@ func TestPubSubService_Publish(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	pubSubService, err := queue2.NewPubSubService(ctx, pubSubClient)
+	pubSubService, err := pubsub2.NewPubSubService(ctx, pubSubClient)
 	if err != nil {
 		t.Fatal(err)
 	}
