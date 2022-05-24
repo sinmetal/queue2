@@ -136,15 +136,15 @@ func (h *ReceiveHandler) Handle(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	v, ok := pubSubBody.Message.Attributes["workTimeSec"]
+	v, ok := pubSubBody.Message.Attributes["workTimeMillisecond"]
 	if ok && v != "" {
-		workTimeSec, err := strconv.ParseInt(v, 10, 64)
+		workTimeMilli, err := strconv.ParseInt(v, 10, 64)
 		if err != nil {
-			aelog.Errorf(ctx, "invalid workTimeSec format.value=%s", v)
+			aelog.Errorf(ctx, "invalid workTimeMillisecond format.value=%s", v)
 			return
 		}
-		aelog.Infof(ctx, "sleep:%d sec", workTimeSec)
-		time.Sleep(time.Duration(workTimeSec) * time.Second)
+		aelog.Infof(ctx, "sleep:%d millisec", workTimeMilli)
+		time.Sleep(time.Duration(workTimeMilli) * time.Millisecond)
 	}
 	if fail {
 		w.WriteHeader(http.StatusInternalServerError)

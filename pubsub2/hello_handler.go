@@ -30,8 +30,8 @@ func (h *HelloHandler) Handle(w http.ResponseWriter, r *http.Request) {
 
 	baseAttr := map[string]string{"taskID": uuid.New().String()}
 	orderID := r.FormValue("order")
-	workTimeSec := r.FormValue("workTimeSec")
-	baseAttr["workTimeSec"] = workTimeSec
+	workTimeMilli := r.FormValue("workTimeMillisecond")
+	baseAttr["workTimeMillisecond"] = workTimeMilli
 	forceFail := r.FormValue("forceFail")
 	{
 		attr := map[string]string{}
