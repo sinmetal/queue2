@@ -1,12 +1,14 @@
-package queue2_test
+package pubsub2_test
 
 import (
 	"context"
+
 	"testing"
 	"time"
 
 	"cloud.google.com/go/pubsub"
 	"github.com/sinmetal/queue2"
+	"github.com/sinmetal/queue2/pubsub2"
 )
 
 func TestPubSubService_Publish(t *testing.T) {
@@ -18,14 +20,14 @@ func TestPubSubService_Publish(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	pubSubService, err := queue2.NewPubSubService(ctx, pubSubClient)
+	pubSubService, err := pubsub2.NewPubSubService(ctx, pubSubClient, "hello", "sinmetal-queue2", false)
 	if err != nil {
 		t.Fatal(err)
 	}
 
 	attributes := map[string]string{"hello": "world"}
 	{
-		_, err = pubSubService.Publish(ctx, projectID, "hello", &pubsub.Message{
+		_ = pubSubService.Publish(ctx, &pubsub.Message{
 			Data:       []byte(time.Now().String()),
 			Attributes: attributes,
 		})
@@ -34,7 +36,7 @@ func TestPubSubService_Publish(t *testing.T) {
 		}
 	}
 	{
-		_, err = pubSubService.Publish(ctx, projectID, "hello-order", &pubsub.Message{
+		_ = pubSubService.Publish(ctx, &pubsub.Message{
 			Data:        []byte(time.Now().String()),
 			Attributes:  attributes,
 			OrderingKey: "key1",
